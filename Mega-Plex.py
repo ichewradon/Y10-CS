@@ -4,22 +4,24 @@ logged_in = False
 admin = False
 login_attempts = 0
 
-users = [["admin", "admin123", True],
-         ["customer", "customer123", False]]
+users = [{"user": "admin", "password": "admin123", "admin": True, "points": float('inf')},
+         {"user": "james", "password": "james123", "admin": False, "points": 800},
+         {"user": "gethin", "password": "gethin123", "admin": False, "points": 100}]
+
 
 CINEMA_NAME = "Mega-Plex"
 
 films = [
-    {"name": "A Minecraft Movie", "price": 8, "age": "PG"},
-    {"name": "Spiderman", "price": 6, "age": "12"},
-    {"name": "Super Mario Galaxy", "price": 10, "age": "U"}
+    {"name": "A Minecraft Movie", "price": 8, "age": "PG", "seats": 50},
+    {"name": "Spiderman", "price": 6, "age": "12", "seats": 50},
+    {"name": "Super Mario Galaxy", "price": 10, "age": "U", "seats": 50}
 ]
 
 snacks = {
-    "Popcorn": 3,
-    "Drink": 2,
-    "Nachos": 4,
-    "Hot-Dog": 6
+    "Popcorn": {"price": 3, "quantity": "500"},
+    "Drink": {"price": 2, "quantity": "200"},
+    "Nachos": {"price": 4, "quantity": "100"},
+    "Hot-Dog": {"price": 3, "quantity": "50"}
 }
 
 while login_attempts < 3 and not logged_in:
@@ -28,9 +30,11 @@ while login_attempts < 3 and not logged_in:
     login_pass = input("Enter your password: ")
 
     for user in users:
-        if login_user == user[0] and login_pass == user[1]:
-            admin = user[2]
+        if login_user == user["user"] and login_pass == user["password"]:
+            admin = user["admin"]
             logged_in = True
+            name = user["user"].title()
+            points = user["points"]
             break
 
     if not logged_in:
@@ -56,18 +60,21 @@ else:
             if choice == "1":
                 print()
                 for film in films:
-                    print(f"{film['name']} | £{film['price']} | {film['age']}")
+                    print(f"{film['name']} | £{film['price']} | {film['age']} | {film['seats']} seats left")
 
             elif choice == "2":
                 print()
                 name = input("Film name: ")
                 price = int(input("Price: "))
                 age = input("Age rating: ")
+                seats = int(input("Number of seats: "))
+
 
                 films.append({
                     "name": name,
                     "price": price,
-                    "age": age
+                    "age": age,
+                    "seats": seats
                 })
 
                 print("Film added")
@@ -99,21 +106,24 @@ else:
 
             elif choice == "5":
                 print()
-                for item in snacks:
-                    print(item, "£", snacks[item])
+                for name, snack in snacks.items():
+                    print(f"{name} | £{snack['price']} | {snack['quantity']} left")
 
             elif choice == "6":
                 print()
-                for i, item in enumerate(snacks):
-                    print(i + 1, item, "£", snacks[item])
+                snack_list = list(snacks.keys())
+                for i, name in enumerate(snack_list):
+                    print(i + 1, name, "£", snacks[name]["price"])
 
                 pick = int(input("Select snack: ")) - 1
-                snack_name = list(snacks.keys())[pick]
 
-                new_price = int(input("Enter new price: "))
-                snacks[snack_name] = new_price
-
-                print(snack_name, "price updated")
+                if 0 <= pick < len(snack_list):
+                    snack_name = snack_list[pick]
+                    new_price = int(input("Enter new price: "))
+                    snacks[snack_name]["price"] = new_price
+                    print(snack_name, "price updated")
+                else:
+                    print("Invalid selection")
 
             elif choice == "7":
                 print("Exiting admin menu...")
@@ -123,7 +133,7 @@ else:
                 print("Invalid option")
 
     else:
-        print("\nWelcome Customer")
+        print(f"\nWelcome {name}")
 
         while True:
             print("\nCUSTOMER MENU")
@@ -135,13 +145,13 @@ else:
 
             if choice == "1":
                 print()
-                for i, film in enumerate(films):
-                    print(i + 1, film["name"], "£", film["price"], film["age"])
+                for film in films:
+                    print(f"{film['name']} | £{film['price']} | {film['age']} | {film['seats']} seats left")
 
             elif choice == "2":
                 print()
                 for i, film in enumerate(films):
-                    print(i + 1, film["name"], "£", film["price"], film["age"])
+                    print(f" {i + 1} - {film['name']} | £{film['price']} | {film['age']} | {film['seats']} seats left")
 
                 pick = int(input("Choose film: ")) - 1
                 selected = films[pick]
@@ -150,39 +160,42 @@ else:
 
                 if selected["age"] == "12" and age < 12:
                     print("You are too young for this film")
-                    continue
 
                 tickets = int(input("How many tickets? "))
-                points = int(input("Loyalty points: "))
 
-                total = tickets * selected["price"]
-                total -= points // 100
+                if tickets <= selected["seats"]:
+                    total = tickets * selected["price"]
+                    selected["seats"] -= tickets
+                    total -= points // 100
 
-                snack_total = 0
-                more = "yes"
+                    snack_total = 0
+                    more = "yes"
 
-                while more == "yes":
-                    print("SNACK MENU")
+                    while more == "yes":
+                        print("SNACK MENU")
 
-                    for item in snacks:
-                        print(item, "£", snacks[item])
+                        for i, (name, snack) in enumerate(snacks.items()):
+                            print(i + 1, name, "£", snack["price"])
 
-                    snack = input("Choose snack: ")
+                        snack = input("Choose snack: ")
 
-                    if snack in snacks:
-                        snack_total += snacks[snack]
-                        print(snack, "added")
+                        if snack in snacks:
+                            snack_total += snacks[snack]["price"]
+                            print(snack, "added")
 
-                    more = input("Add more snacks? (yes/no): ")
+                        more = input("Add more snacks? (yes/no): ")
 
-                final_total = total + snack_total
+                    final_total = total + snack_total
 
-                print("\n--- RECEIPT ---")
-                print("Film:", selected["name"])
-                print("Tickets:", tickets)
-                print("Ticket cost: £", total)
-                print("Snacks: £", snack_total)
-                print("FINAL TOTAL: £", final_total)
+                    print("\n--- RECEIPT ---")
+                    print("Film:", selected["name"])
+                    print("Tickets:", tickets)
+                    print("Ticket cost: £", total)
+                    print("Snacks: £", snack_total)
+                    print("FINAL TOTAL: £", final_total)
+                
+                else:
+                    print("Not enough seats available")
 
             elif choice == "3":
                 print("Logging Out")
