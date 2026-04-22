@@ -150,8 +150,8 @@ else:
 
             elif choice == "2":
                 print()
-                for i, film in enumerate(films):
-                    print(f" {i + 1} - {film['name']} | £{film['price']} | {film['age']} | {film['seats']} seats left")
+                for film in films:
+                    print(f" {film + 1}  {film['name']} | £{film['price']} | {film['age']} | {film['seats']} seats left")
 
                 pick = int(input("Choose film: ")) - 1
                 selected = films[pick]
