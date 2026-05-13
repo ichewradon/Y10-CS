@@ -6,6 +6,7 @@ login_attempts = 0
 
 users = [{"user": "admin", "password": "admin123", "admin": True, "points": float('inf')},
          {"user": "james", "password": "james123", "admin": False, "points": 800},
+         {"user": "jan", "password": "jan123", "admin": False, "points": 300},
          {"user": "gethin", "password": "gethin123", "admin": False, "points": 100}]
 
 
@@ -158,44 +159,52 @@ else:
 
                 age = int(input("Enter your age: "))
 
-                if selected["age"] == "12" and age < 12:
-                    print("You are too young for this film")
+                while age < 0:
+                    print("Invalid age")
+                    age = int(input("Enter your age: "))
+                else:
+                    if selected["age"] == "12" and age < 12:
+                        print("You are too young for this film")
 
                 tickets = int(input("How many tickets? "))
 
-                if tickets <= selected["seats"]:
-                    total = tickets * selected["price"]
-                    selected["seats"] -= tickets
-                    total -= points // 100
-
-                    snack_total = 0
-                    more = "yes"
-
-                    while more == "yes":
-                        print("SNACK MENU")
-
-                        for i, (name, snack) in enumerate(snacks.items()):
-                            print(i + 1, name, "£", snack["price"])
-
-                        snack = input("Choose snack: ")
-
-                        if snack in snacks:
-                            snack_total += snacks[snack]["price"]
-                            print(snack, "added")
-
-                        more = input("Add more snacks? (yes/no): ")
-
-                    final_total = total + snack_total
-
-                    print("\n--- RECEIPT ---")
-                    print("Film:", selected["name"])
-                    print("Tickets:", tickets)
-                    print("Ticket cost: £", total)
-                    print("Snacks: £", snack_total)
-                    print("FINAL TOTAL: £", final_total)
-                
+                while tickets < 1:
+                    print("Invalid number of tickets")
+                    tickets = int(input("How many tickets? "))
                 else:
-                    print("Not enough seats available")
+                    if tickets <= selected["seats"]:
+                        total = tickets * selected["price"]
+                        selected["seats"] -= tickets
+                        total -= points // 100
+
+                        snack_total = 0
+                        more = "yes"
+
+                        while more == "yes":
+                            print("SNACK MENU")
+
+                            for i, (name, snack) in enumerate(snacks.items()):
+                                print(i + 1, name, "£", snack["price"])
+
+                            snack = input("Choose snack: ")
+
+                            if snack in snacks:
+                                snack_total += snacks[snack]["price"]
+                                print(snack, "added")
+
+                            more = input("Add more snacks? (yes/no): ")
+
+                        final_total = total + snack_total
+
+                        print("\n--- RECEIPT ---")
+                        print("Film:", selected["name"])
+                        print("Tickets:", tickets)
+                        print("Ticket cost: £", total)
+                        print("Snacks: £", snack_total)
+                        print("FINAL TOTAL: £", final_total)
+                    
+                    else:
+                        print("Not enough seats available")
 
             elif choice == "3":
                 print("Logging Out")
